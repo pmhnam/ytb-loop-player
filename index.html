@@ -7,9 +7,9 @@
     <title>YouTube Loop</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #282828;
-            color: #333;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1c1c1c;
+            color: #f5f5f5;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -18,92 +18,153 @@
             margin: 0;
         }
 
-        .container {
-            background-color: #7d7d7d;
+        .main-container {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            justify-content: center;
+            width: 90%;
+            max-width: 1200px;
+            margin: 20px;
+            gap: 20px;
+        }
+
+        .video-container {
+            flex: 1;
+            max-width: 640px;
+            position: relative;
+            aspect-ratio: 16 / 9;
+        }
+
+        .input-container {
+            flex: 1;
+            background-color: #2a2a2a;
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
             text-align: center;
-            margin-top: 20px;
-            width: 80%;
-            max-width: 600px;
+            max-width: 400px;
         }
 
         .grid {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 20px;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
             margin-top: 20px;
         }
 
-        .column {
-            display: flex;
-            flex-direction: column;
+        .full-width {
+            grid-column: 1 / -1;
         }
 
         label {
-            margin-top: 10px;
-            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #dcdcdc;
         }
 
         input[type="text"],
-        input[type="number"] {
+        input[type="number"],
+        select {
             width: 100%;
-            padding: 8px;
+            padding: 10px;
             margin-top: 5px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
+            border-radius: 6px;
+            border: 1px solid #555;
+            background-color: #3a3a3a;
+            color: #ffffff;
             box-sizing: border-box;
+            font-size: 14px;
         }
 
         button {
-            margin-top: 15px;
-            padding: 10px 20px;
-            background-color: #007bff;
+            margin-top: 20px;
+            padding: 12px 25px;
+            background-color: #ff4500;
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
             font-size: 16px;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s ease;
         }
 
         button:hover {
-            background-color: #0056b3;
+            background-color: #e03e00;
         }
 
-        #player {
-            margin-top: 0px;
+        h2,
+        h3 {
+            color: #ffffff;
         }
     </style>
 </head>
 
 <body>
-    <div id="player"></div>
-    <div class="container">
-        <h2>YouTube Loop Player</h2>
-        <div class="grid">
-            <div class="column">
-                <label for="videoIdInput">ID video YouTube:</label>
-                <input type="text" id="videoIdInput" placeholder="Example: sh6LRcPVpI0" value="sh6LRcPVpI0">
-            </div>
-            <div class="column">
-                <label for="startTimeInput">Start time (seconds):</label>
-                <input type="number" id="startTimeInput" placeholder="Example: 17" value="17">
-                <label for="endTimeInput">End time (seconds):</label>
-                <input type="number" id="endTimeInput" placeholder="Example: 20" value="20">
-            </div>
-            <div class="column">
-                <label for="loopCountInput">Loop count:</label>
-                <input type="number" id="loopCountInput" placeholder="Example: 3" value="1">
-                <label for="delayInput">Delay time (seconds):</label>
-                <input type="number" id="delayInput" placeholder="Example: 2" value="2">
-            </div>
+    <div class="main-container">
+        <div class="video-container">
+            <div id="player"></div>
         </div>
-        <button onclick="loadVideo()">Load Video</button>
+        <div class="input-container">
+            <h2>YouTube Loop Player</h2>
+            <div class="grid">
+                <div class="full-width">
+                    <label for="videoIdInput">ID video YouTube:</label>
+                    <input type="text" id="videoIdInput" placeholder="Example: sh6LRcPVpI0" value="">
+                </div>
+                <div>
+                    <label for="startTimeInput">Start time (seconds):</label>
+                    <input type="number" id="startTimeInput" placeholder="Example: 17" value="">
+                </div>
+                <div>
+                    <label for="endTimeInput">End time (seconds):</label>
+                    <input type="number" id="endTimeInput" placeholder="Example: 20" value="">
+                </div>
+                <div>
+                    <label for="loopCountInput">Loop count:</label>
+                    <input type="number" id="loopCountInput" placeholder="Example: 3" value="">
+                </div>
+                <div>
+                    <label for="delayInput">Delay time (seconds):</label>
+                    <input type="number" id="delayInput" placeholder="Example: 2" value="">
+                </div>
+            </div>
+            <button id="loadVideoButton" onclick="loadVideo()">Load Video</button>
+            <button onclick="saveData()">Save Data</button>
+
+            <h3>Saved Data Sets</h3>
+            <select id="savedDataSelect" onchange="loadSavedData()">
+                <option value="">Select a saved data set</option>
+            </select>
+        </div>
     </div>
 
     <script>
+        // Function to get URL parameters
+        function getQueryParams() {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                videoId: params.get('videoId'),
+                startTime: params.get('startTime'),
+                endTime: params.get('endTime'),
+                loopCount: params.get('loopCount'),
+                delay: params.get('delay')
+            };
+        }
+
+        // Set the input values based on query parameters
+        function setInputValuesFromQuery() {
+            const { videoId, startTime, endTime, loopCount, delay } = getQueryParams();
+
+            if (videoId) document.getElementById('videoIdInput').value = videoId;
+            if (startTime) document.getElementById('startTimeInput').value = startTime;
+            if (endTime) document.getElementById('endTimeInput').value = endTime;
+            if (loopCount) document.getElementById('loopCountInput').value = loopCount;
+            if (delay) document.getElementById('delayInput').value = delay;
+        }
+
+        // Load YouTube IFrame Player API
         var tag = document.createElement('script');
         tag.src = "https://www.youtube.com/iframe_api";
         var firstScriptTag = document.getElementsByTagName('script')[0];
@@ -116,10 +177,11 @@
         var endTime = 0;
         var delayTime = 0;
 
+        // Called when the API is ready
         function onYouTubeIframeAPIReady() {
             player = new YT.Player('player', {
-                height: '390',
-                width: '640',
+                height: '100%',
+                width: '100%',
                 events: {
                     'onReady': onPlayerReady,
                     'onStateChange': onPlayerStateChange
@@ -127,6 +189,7 @@
             });
         }
 
+        // Load the video based on input values
         function loadVideo() {
             var videoId = document.getElementById('videoIdInput').value;
             startTime = parseFloat(document.getElementById('startTimeInput').value) || 0;
@@ -140,16 +203,19 @@
             }
         }
 
+        // Called when the player is ready
         function onPlayerReady(event) {
             player.seekTo(startTime);
         }
 
+        // Called when the player state changes
         function onPlayerStateChange(event) {
             if (event.data == YT.PlayerState.PLAYING) {
                 setTimeout(checkTime, 100);
             }
         }
 
+        // Check the current playback time and handle looping
         function checkTime() {
             if (player.getCurrentTime() >= endTime) {
                 loopCount++;
@@ -166,6 +232,69 @@
                 setTimeout(checkTime, 100);
             }
         }
+
+        // Save current input values to localStorage
+        function saveData() {
+            const videoId = document.getElementById('videoIdInput').value;
+            const startTime = document.getElementById('startTimeInput').value;
+            const endTime = document.getElementById('endTimeInput').value;
+            const loopCount = document.getElementById('loopCountInput').value;
+            const delay = document.getElementById('delayInput').value;
+
+            const savedData = JSON.parse(localStorage.getItem('savedDataSets') || '[]');
+            const newData = { videoId, startTime, endTime, loopCount, delay };
+
+            savedData.push(newData);
+            localStorage.setItem('savedDataSets', JSON.stringify(savedData));
+
+            updateSavedDataSelect();
+        }
+
+        // Load saved data sets into the select element
+        function updateSavedDataSelect() {
+            const savedData = JSON.parse(localStorage.getItem('savedDataSets') || '[]');
+            const select = document.getElementById('savedDataSelect');
+
+            select.innerHTML = '<option value="">Select a saved data set</option>';
+
+            savedData.forEach((data, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = `Video ID: ${data.videoId}, Start: ${data.startTime}, End: ${data.endTime}`;
+                select.appendChild(option);
+            });
+        }
+
+        // Load selected saved data into inputs
+        function loadSavedData() {
+            const index = document.getElementById('savedDataSelect').value;
+            if (index === '') return;
+
+            const savedData = JSON.parse(localStorage.getItem('savedDataSets') || '[]');
+            const data = savedData[index];
+
+            if (data) {
+                document.getElementById('videoIdInput').value = data.videoId;
+                document.getElementById('startTimeInput').value = data.startTime;
+                document.getElementById('endTimeInput').value = data.endTime;
+                document.getElementById('loopCountInput').value = data.loopCount;
+                document.getElementById('delayInput').value = data.delay;
+            }
+        }
+
+        // Initialize on page load
+        window.onload = function () {
+            setInputValuesFromQuery();
+            updateSavedDataSelect();
+        };
+
+        // Add event listener for Enter key
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                document.getElementById('loadVideoButton').click();
+            }
+        });
     </script>
 </body>
 
