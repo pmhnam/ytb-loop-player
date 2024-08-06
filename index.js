@@ -21,7 +21,7 @@ function setInputValuesFromQuery() {
     if (e) document.getElementById('endTimeInput').value = e;
     if (l) document.getElementById('loopCountInput').value = l;
     if (d) document.getElementById('delayInput').value = d;
-    if (n) document.getElementById('noteInput').value = decodeURIComponent(n);
+    if (n && n !== 'undefined') document.getElementById('noteInput').value = decodeURIComponent(n);
 }
 
 // Update the URL based on current input values
@@ -168,7 +168,9 @@ function loadSavedData() {
         document.getElementById('endTimeInput').value = data.endTime;
         document.getElementById('loopCountInput').value = data.loopCount;
         document.getElementById('delayInput').value = data.delay;
-        document.getElementById('noteInput').value = data.note;
+        if (data.note) {
+            document.getElementById('noteInput').value = data.note;
+        }
         updateUrl();
     }
 }
