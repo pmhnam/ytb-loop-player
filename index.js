@@ -33,7 +33,7 @@ function updateUrl() {
     const delay = document.getElementById('delayInput').value;
     const noteValue = document.getElementById('noteInput').value;
 
-    const newUrl = `${window.location.origin}${window.location.pathname}?v=${videoId}&s=${startTime}&e=${endTime}&l=${loopCount}&d=${delay}`;
+    let newUrl = `${window.location.origin}${window.location.pathname}?v=${videoId}&s=${startTime}&e=${endTime}&l=${loopCount}&d=${delay}`;
     if (noteValue) {
         const note = encodeURIComponent(noteValue);
         newUrl += `&n=${note}`;
